@@ -10,6 +10,7 @@ def Init(skill_level):
     engine.configure({"Skill Level": skill_level})
 
 def GetPiece(idx):
+    global board
     if board.piece_at(idx) != None:
         return board.piece_at(idx).symbol()
     else:
@@ -24,6 +25,12 @@ def Move(x=''):
     board.push(chess.Move.from_uci(x))
     print(x)
 
+def isGameOver():
+    global board
+    return board.is_game_over()
+
 def QuitEngine():
     global engine
     engine.quit()
+
+print(board.piece_map())

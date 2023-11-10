@@ -32,10 +32,10 @@ white_yellow_square_pixel = (244, 246, 128)
 moveCount = 0
 moves = ''
 
-delay_mode = True
+delay_mode = False
 #stockfish stats
-skill_level = 5
-movetime = 0.2
+skill_level = 20
+movetime = 0.5
 
 def setup():
     global side
@@ -64,10 +64,16 @@ def setup():
 
 def setCurrChessboard():
     global currChessboard
-    for i in range(0, 64):
-        x = i % 8
-        y = i // 8
-        currChessboard[y][7-x] = sf.GetPiece(63 - i)
+    if side == BLACK:
+        for i in range(0, 64):
+            x = i % 8
+            y = i // 8
+            currChessboard[y][7-x] = sf.GetPiece(i)
+    else:
+        for i in range(0, 64):
+            x = i % 8
+            y = i // 8
+            currChessboard[y][7-x] = sf.GetPiece(63 - i)
 
 
 def click_piece(x=""):
@@ -154,6 +160,7 @@ def getChessboardState():
     return arr
 
 def getChessSide(x):
+    global currChessboard
     (col, row) = SquareNameToCoordinate(x)
     if currChessboard[col][row] == ' ':
         return -1 #o do khong chua quan co nao
@@ -191,7 +198,7 @@ def Process():
         moveCount += 1
 
 
-    while True:
+    while sf.isGameOver() == False:
         global myMove1, myMove2
         if moveCount % 2 == 1 - side: #den luot minh di chuyen
             move = sf.GetNextMove(movetime)
@@ -202,7 +209,7 @@ def Process():
             # for x in currChessboard:
             #     print(x, end='\n')
             # print()
-            time.sleep(0.75)
+            time.sleep(0.025)
             prevChessboardPixel = getChessboardState()
         else:
             isMove = False
