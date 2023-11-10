@@ -33,4 +33,12 @@ def QuitEngine():
     global engine
     engine.quit()
 
-print(board.piece_map())
+# print(board.piece_map())
+
+# board1 = chess.Board('8/5P2/3kp1P1/7p/pP1P4/6K1/1P6/8 w - - 1 42')
+# print(board1)
+# engine = chess.engine.SimpleEngine.popen_uci('.\\stockfish\\stockfish-windows-x86-64-avx2.exe')
+# print(engine.play(board1, chess.engine.Limit(time=0.2)).move.uci())
+# # board1.push(chess.Move.from_uci('a7a8'))
+# # print(board1)
+# # print(engine.play(board1, chess.engine.Limit(time=0.2)).move.uci())

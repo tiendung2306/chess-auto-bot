@@ -32,10 +32,10 @@ white_yellow_square_pixel = (244, 246, 128)
 moveCount = 0
 moves = ''
 
-delay_mode = False
+delay_mode = True
 #stockfish stats
-skill_level = 20
-movetime = 0.5
+skill_level = 4
+movetime = 0.25
 
 def setup():
     global side
@@ -112,25 +112,65 @@ def SquareNameToCoordinate(x=""):
         col = 8 - int(x[1])
     return (col, row)
 
-def move_piece(x="", y=""): #di chuyen quan co tu o x den o y
+def move_piece(x="", y="", z=None): #di chuyen quan co tu o x den o y, neu z != None thi nuoc di do la phong quan, va quan duoc phong la z
     global moves, delay_mode
+    delay_time_btw_2click = 0.1
     if delay_mode == True:
-        time.sleep(random.randint(0, 10)) #chinh delay giua moi lan minh di mot nuoc
-    x1 = click_piece(x)
-    time.sleep(0.05)
-    x2 = click_piece(y)
-    moves += x + y + ' '
-    sf.Move(x + y)
-    
+        tmp = random.randint(0, 100)
+        if tmp % 15 == 0:
+            time.sleep(random.randint(10, 20)) #chinh delay giua moi lan minh di mot nuoc
+        else:
+            time.sleep(random.randint(0, 6)) #chinh delay giua moi lan minh di mot nuoc
+    if z == None:
+        x1 = click_piece(x)
+        time.sleep(delay_time_btw_2click)
+        x2 = click_piece(y)
+        moves += x + y + ' '
+        sf.Move(x + y)
+    else: #nuoc di vua roi la nuoc phong quan
+        x1 = click_piece(x)
+        time.sleep(delay_time_btw_2click)
+        x2 = click_piece(y)
+        time.sleep(delay_time_btw_2click)
+        if z == 'q' or z == 'Q': #phong hau
+            click_piece(y)
+        elif z == 'n' or z == 'N': #phong ma
+            if side == WHITE:
+                y = y[0] + str(int(y[1]) - 1)
+            else:
+                y = y[0] + str(int(y[1]) + 1)
+            click_piece(y)
+        elif z == 'r' or z == 'R': #phong xe
+            if side == WHITE:
+                y = y[0] + str(int(y[1]) - 2)
+            else:
+                y = y[0] + str(int(y[1]) + 2)
+            click_piece(y)
+        elif z == 'b' or z == 'B': #phong tuong
+            if side == WHITE:
+                y = y[0] + str(int(y[1]) - 3)
+            else:
+                y = y[0] + str(int(y[1]) + 3)
+            click_piece(y)
+        else:
+            print('WTF the la no phong quan gi?????')
+        
+        sf.Move(x + y + z)
+        moves += x + y + z + ' '
     setCurrChessboard()
 
 def EnemyMovePiece(x="", y=""): #di tu x den y
     global currChessboard, moves, side
     x1 = SquareNameToCoordinate(x)
     x2 = SquareNameToCoordinate(y)
-    #di tu x1 den x2
-    moves += x + y + ' '
-    sf.Move(x + y)
+    #kiem tra neu o x1 la con tot va o x2 la o cuoi bang
+    if (currChessboard[x1[0]][x1[1]] == 'p' or currChessboard[x1[0]][x1[1]] == 'P') and ((side == WHITE and y[1] == '1') or (side == BLACK and y[1] == '8')):
+        moves += x + y + 'q' + ' '
+        sf.Move(x + y + 'q')
+    else:
+        #di tu x1 den x2
+        moves += x + y + ' '
+        sf.Move(x + y)
 
     setCurrChessboard()
 
@@ -173,7 +213,7 @@ def Process():
     global moveCount, currChessboardPixel, prevChessboardPixel, currChessboard
     takeChessboardStateAgain = False
 
-    print(currChessboard)
+    # print(currChessboard)
 
     if side == BLACK: #neu minh choi quan den
         tmpChessboardPixel = getChessboardState()
@@ -202,9 +242,17 @@ def Process():
         global myMove1, myMove2
         if moveCount % 2 == 1 - side: #den luot minh di chuyen
             move = sf.GetNextMove(movetime)
-            myMove1 = move[0] + move[1]
-            myMove2 = move[2] + move[3]
-            move_piece(myMove1, myMove2)
+            if len(move) == 4:
+                myMove1 = move[0] + move[1]
+                myMove2 = move[2] + move[3]
+                move_piece(myMove1, myMove2)
+            elif len(move) == 5: #phong quan
+                print('It\'s timeeeeeeeee, my little pawn')
+                myMove1 = move[0] + move[1]
+                myMove2 = move[2] + move[3]
+                move_piece(myMove1, myMove2, move[4])
+            else:
+                print('Panikkkkkkkkkk')
             moveCount += 1
             # for x in currChessboard:
             #     print(x, end='\n')
@@ -265,6 +313,7 @@ def Process():
                             elif x[0] == 'h': #nhap thanh ngan
                                 EnemyMovePiece('e' + x[1], 'h' + x[1])
                     else:
+                        print('What the hell????')
                         print(enemyMoves)
                 else:
                     if getChessSide(enemyMoves[0]) == 1 - side:
