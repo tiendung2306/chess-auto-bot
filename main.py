@@ -13,7 +13,7 @@ side = WHITE #1 neu ban choi quan trang, 0 neu ban choi quan den
 rows = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
 cols = ['1', '2', '3', '4', '5', '6', '7', '8']
 
-currChesboard = [
+currChessboard = [
     ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
     ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
     [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
@@ -32,9 +32,10 @@ white_yellow_square_pixel = (244, 246, 128)
 moveCount = 0
 moves = ''
 
+delay_mode = True
 #stockfish stats
 skill_level = 5
-movetime = 1.0
+movetime = 0.2
 
 def setup():
     global side
@@ -59,6 +60,15 @@ def setup():
     CurrImg = pag.screenshot('Assets\\chess_com\\CurrScreen.png')
 
     sf.Init(skill_level)
+    setCurrChessboard()
+
+def setCurrChessboard():
+    global currChessboard
+    for i in range(0, 64):
+        x = i % 8
+        y = i // 8
+        currChessboard[y][7-x] = sf.GetPiece(63 - i)
+
 
 def click_piece(x=""):
     row = 0
@@ -97,38 +107,26 @@ def SquareNameToCoordinate(x=""):
     return (col, row)
 
 def move_piece(x="", y=""): #di chuyen quan co tu o x den o y
-    time.sleep(random.randint(0, 6)) #chinh delay giua moi lan minh di mot nuoc
-    global moves
+    global moves, delay_mode
+    if delay_mode == True:
+        time.sleep(random.randint(0, 10)) #chinh delay giua moi lan minh di mot nuoc
     x1 = click_piece(x)
     time.sleep(0.05)
     x2 = click_piece(y)
     moves += x + y + ' '
     sf.Move(x + y)
-    currChesboard[x2[0]][x2[1]] = currChesboard[x1[0]][x1[1]]
-    currChesboard[x1[0]][x1[1]] = ' '
+    
+    setCurrChessboard()
 
-def EnemyMovePiece(x="", y="", iscastle=False): #di tu x den y
-    global currChesboard, moves
+def EnemyMovePiece(x="", y=""): #di tu x den y
+    global currChessboard, moves, side
     x1 = SquareNameToCoordinate(x)
     x2 = SquareNameToCoordinate(y)
     #di tu x1 den x2
     moves += x + y + ' '
     sf.Move(x + y)
-    if iscastle == False:
-        currChesboard[x2[0]][x2[1]] = currChesboard[x1[0]][x1[1]]
-        currChesboard[x1[0]][x1[1]] = ' '
-    else:
-        #con vua di tu o x1
-        if  y[0] == 'a': #nhap thanh dai
-            currChesboard[x1[0]][x1[1] - 1] = currChesboard[x2[0]][x2[1]]
-            currChesboard[x1[0]][x1[1] - 2] = currChesboard[x1[0]][x1[1]]
-            currChesboard[x1[0]][x1[1]] = ' '
-            currChesboard[x2[0]][x2[1]] = ' '
-        else: #nhap thanh ngan
-            currChesboard[x1[0]][x1[1] + 1] = currChesboard[x2[0]][x2[1]]
-            currChesboard[x1[0]][x1[1] + 2] = currChesboard[x1[0]][x1[1]]
-            currChesboard[x1[0]][x1[1]] = ' '
-            currChesboard[x2[0]][x2[1]] = ' '
+
+    setCurrChessboard()
 
 
 def FindSquare(x):
@@ -157,24 +155,42 @@ def getChessboardState():
 
 def getChessSide(x):
     (col, row) = SquareNameToCoordinate(x)
-    if currChesboard[col][row] == ' ':
+    if currChessboard[col][row] == ' ':
         return -1 #o do khong chua quan co nao
-    if currChesboard[col][row] == 'r' or currChesboard[col][row] == 'n' or currChesboard[col][row] == 'b' or currChesboard[col][row] == 'q' or currChesboard[col][row] == 'k' or currChesboard[col][row] == 'p':
+    if currChessboard[col][row] == 'r' or currChessboard[col][row] == 'n' or currChessboard[col][row] == 'b' or currChessboard[col][row] == 'q' or currChessboard[col][row] == 'k' or currChessboard[col][row] == 'p':
         return BLACK
     else:
         return WHITE
 
 def Process():
-    global moveCount, currChessboardPixel, prevChessboardPixel, currChesboard
+    global moveCount, currChessboardPixel, prevChessboardPixel, currChessboard
     takeChessboardStateAgain = False
-    # tmp = getChessboardState()
-    # for i in range(0, 8):
-    #     for j in range(0, 8):
-    #         idx = i * 8 + j
-    #         print(tmp[idx], end=' ')
-    #     print()
-    # print()
-    # return
+
+    print(currChessboard)
+
+    if side == BLACK: #neu minh choi quan den
+        tmpChessboardPixel = getChessboardState()
+        for i in range(0, 64):
+            x = i % 8
+            y = i // 8
+            if y > 1 and y < 6:
+                if (x + y) % 2 == 0:
+                    if tmpChessboardPixel[i] != white_square_pixel:
+                        move2 = CoordinateToSquareName(x, y)
+                else:
+                    if tmpChessboardPixel[i] != black_square_pixel:
+                        move2 = CoordinateToSquareName(x, y)
+            else:
+                if (x + y) % 2 == 0:
+                    if tmpChessboardPixel[i] == white_yellow_square_pixel:
+                        move1 = CoordinateToSquareName(x, y)
+                else:
+                    if tmpChessboardPixel[i] == black_yellow_square_pixel:
+                        move1 = CoordinateToSquareName(x, y)
+        EnemyMovePiece(move1, move2)
+        moveCount += 1
+
+
     while True:
         global myMove1, myMove2
         if moveCount % 2 == 1 - side: #den luot minh di chuyen
@@ -183,7 +199,7 @@ def Process():
             myMove2 = move[2] + move[3]
             move_piece(myMove1, myMove2)
             moveCount += 1
-            # for x in currChesboard:
+            # for x in currChessboard:
             #     print(x, end='\n')
             # print()
             time.sleep(0.75)
@@ -238,9 +254,9 @@ def Process():
                     if len(enemyMoves) == 4:
                         for x in enemyMoves:
                             if x[0] == 'a': #nhap thanh dai
-                                EnemyMovePiece('e' + x[1], 'a' + x[1], iscastle=True)
+                                EnemyMovePiece('e' + x[1], 'a' + x[1])
                             elif x[0] == 'h': #nhap thanh ngan
-                                EnemyMovePiece('e' + x[1], 'h' + x[1], iscastle=True)
+                                EnemyMovePiece('e' + x[1], 'h' + x[1])
                     else:
                         print(enemyMoves)
                 else:
@@ -251,7 +267,7 @@ def Process():
                     else:
                         print('What tf is going on????')
                         print(enemyMoves)
-                        print(currChesboard)
+                        print(currChessboard)
 
 def main():
     global piece_box_width, piece_box_height, chessboard_surface
