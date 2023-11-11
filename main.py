@@ -112,15 +112,20 @@ def SquareNameToCoordinate(x=""):
         col = 8 - int(x[1])
     return (col, row)
 
+def make_delay():
+    tmp = random.randint(0, 100)
+    if tmp < 8 == 0:
+        time.sleep(random.randint(10, 20)) #chinh delay giua moi lan minh di mot nuoc
+    elif tmp < 52:
+        time.sleep(random.randint(4, 7)) #chinh delay giua moi lan minh di mot nuoc
+    else:
+        time.sleep(random.randint(0, 3)) #chinh delay giua moi lan minh di mot nuoc
+
 def move_piece(x="", y="", z=None): #di chuyen quan co tu o x den o y, neu z != None thi nuoc di do la phong quan, va quan duoc phong la z
     global moves, delay_mode
     delay_time_btw_2click = 0.1
     if delay_mode == True:
-        tmp = random.randint(0, 100)
-        if tmp % 15 == 0:
-            time.sleep(random.randint(10, 20)) #chinh delay giua moi lan minh di mot nuoc
-        else:
-            time.sleep(random.randint(0, 6)) #chinh delay giua moi lan minh di mot nuoc
+        make_delay()
     if z == None:
         x1 = click_piece(x)
         time.sleep(delay_time_btw_2click)
@@ -216,24 +221,28 @@ def Process():
     # print(currChessboard)
 
     if side == BLACK: #neu minh choi quan den
-        tmpChessboardPixel = getChessboardState()
-        for i in range(0, 64):
-            x = i % 8
-            y = i // 8
-            if y > 1 and y < 6:
-                if (x + y) % 2 == 0:
-                    if tmpChessboardPixel[i] != white_square_pixel:
-                        move2 = CoordinateToSquareName(x, y)
+        isEnemyMove = False
+        while isEnemyMove == False:
+            tmpChessboardPixel = getChessboardState()
+            for i in range(0, 64):
+                x = i % 8
+                y = i // 8
+                if y > 1 and y < 6:
+                    if (x + y) % 2 == 0:
+                        if tmpChessboardPixel[i] != white_square_pixel:
+                            move2 = CoordinateToSquareName(x, y)
+                            isEnemyMove = True
+                    else:
+                        if tmpChessboardPixel[i] != black_square_pixel:
+                            move2 = CoordinateToSquareName(x, y)
+                            isEnemyMove = True
                 else:
-                    if tmpChessboardPixel[i] != black_square_pixel:
-                        move2 = CoordinateToSquareName(x, y)
-            else:
-                if (x + y) % 2 == 0:
-                    if tmpChessboardPixel[i] == white_yellow_square_pixel:
-                        move1 = CoordinateToSquareName(x, y)
-                else:
-                    if tmpChessboardPixel[i] == black_yellow_square_pixel:
-                        move1 = CoordinateToSquareName(x, y)
+                    if (x + y) % 2 == 0:
+                        if tmpChessboardPixel[i] == white_yellow_square_pixel:
+                            move1 = CoordinateToSquareName(x, y)
+                    else:
+                        if tmpChessboardPixel[i] == black_yellow_square_pixel:
+                            move1 = CoordinateToSquareName(x, y)
         EnemyMovePiece(move1, move2)
         moveCount += 1
 
