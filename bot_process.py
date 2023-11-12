@@ -29,6 +29,7 @@ black_square_pixel = (119, 153, 84)
 white_square_pixel = (233, 237, 204)
 black_yellow_square_pixel = (187, 204, 68)
 white_yellow_square_pixel = (244, 246, 128)
+white_pawn_pixel = (0, 0, 0)
 
 moveCount = 0
 moves = ''
@@ -64,8 +65,10 @@ def setup():
     f = open("settings.txt", "r")
     h3square_coord = f.readlines()
     h3square_coord = [int(i) for i in h3square_coord]
-    print(h3square_coord)
+    # print(h3square_coord)
     f.close()   
+
+
 
     global topleft_position, botright_position
     topleft_position = (h3square_coord[0] - h3square_coord[2] * 7, h3square_coord[1] - h3square_coord[3] * 5, h3square_coord[2], h3square_coord[3])
@@ -75,6 +78,14 @@ def setup():
     piece_box_width = (pag.center(botright_position)[0] - pag.center(topleft_position)[0])/7
     global piece_box_height
     piece_box_height = (pag.center(botright_position)[1] - pag.center(topleft_position)[1])/7
+
+    h3squarecenter = pag.center(h3square_coord)
+    if CurrImg.getpixel((h3squarecenter[0], h3squarecenter[1] + h3square_coord[3])) == white_pawn_pixel:
+        side = WHITE
+    else: 
+        side = BLACK
+    
+    print(side)
 
     sf.Init(skill_level)
     setCurrChessboard()
@@ -91,7 +102,7 @@ def check_click():
         listener.join()
 
 def calibrate():
-    global white_square_pixel, black_square_pixel
+    global white_square_pixel, black_square_pixel, white_pawn_pixel
     #nguoi dung se click vao o h3(mau trang)
     check_click()
     CalibrateImg = pag.screenshot('Assets\\chess_com\\CalibrateScreen.png')
@@ -120,6 +131,8 @@ def calibrate():
     h3square_coord = (h3left, h3top, h3right - h3left, h3bot - h3top)
     white_square_pixel = h3pixel
     black_square_pixel = CalibrateImg.getpixel((h3left - 1, h3top))
+    h3squarecenter = pag.center(h3square_coord)
+    white_pawn_pixel = CalibrateImg.getpixel((h3squarecenter[0], h3squarecenter[1] + h3square_coord[3]))
     f = open("settings.txt", "w")
     for i in range(4):
         f.write(str(h3square_coord[i]) + '\n')
@@ -179,7 +192,7 @@ def make_delay():
     tmp = random.randint(0, 100)
     if tmp < 8 == 0:
         time.sleep(random.randint(10, 20)) #chinh delay giua moi lan minh di mot nuoc
-    elif tmp < 52:
+    elif tmp < 50:
         time.sleep(random.randint(4, 7)) #chinh delay giua moi lan minh di mot nuoc
     else:
         time.sleep(random.randint(0, 3)) #chinh delay giua moi lan minh di mot nuoc
