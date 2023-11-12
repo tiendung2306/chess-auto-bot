@@ -213,6 +213,7 @@ def move_piece(x="", y="", z=None): #di chuyen quan co tu o x den o y, neu z != 
         time.sleep(delay_time_btw_2click)
         x2 = click_piece(y)
         time.sleep(delay_time_btw_2click)
+        tmpy = y
         if z == 'q' or z == 'Q': #phong hau
             click_piece(y)
         elif z == 'n' or z == 'N': #phong ma
@@ -236,8 +237,8 @@ def move_piece(x="", y="", z=None): #di chuyen quan co tu o x den o y, neu z != 
         else:
             print('WTF the la no phong quan gi?????')
         
-        sf.Move(x + y + z)
-        moves += x + y + z + ' '
+        sf.Move(x + tmpy + z)
+        moves += x + tmpy + z + ' '
     setCurrChessboard()
 
 def EnemyMovePiece(x="", y=""): #di tu x den y
