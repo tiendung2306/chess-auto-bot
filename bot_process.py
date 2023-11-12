@@ -1,5 +1,6 @@
 import pyautogui as pag
 from PIL import Image
+from pynput.mouse import Listener
 import time
 
 import stockfish as sf
@@ -40,28 +41,89 @@ movetime = 0.25
 
 def setup():
     global side
-    global topleft_position
-    topleft_position = pag.locateOnScreen('Assets\\chess_com\\br_topleftpiece.png', minSearchTime=0.75)
-    if topleft_position == None:
-        side = BLACK
-        topleft_position = pag.locateOnScreen('Assets\\chess_com\\wr_topleftpiece.png', minSearchTime=0.75)
-    # print(topleft_position)
-    global botright_position
-    if side == WHITE:
-        botright_position = pag.locateOnScreen('Assets\\chess_com\\wr_botrightpiece.png', minSearchTime=0.75)
-    else:
-        botright_position = pag.locateOnScreen('Assets\\chess_com\\br_botrightpiece.png', minSearchTime=0.75)
-    # print(botright_position)
-    global piece_box_width
-    piece_box_width = (pag.center(botright_position)[0] - pag.center(topleft_position)[0])/7
-    global piece_box_height
-    piece_box_height = (pag.center(botright_position)[1] - pag.center(topleft_position)[1])/7
+    # global topleft_position
+    # topleft_position = pag.locateOnScreen('Assets\\chess_com\\br_topleftpiece.png', minSearchTime=0.75)
+    # if topleft_position == None:
+    #     side = BLACK
+    #     topleft_position = pag.locateOnScreen('Assets\\chess_com\\wr_topleftpiece.png', minSearchTime=0.75)
+    # # print(topleft_position)
+    # global botright_position
+    # if side == WHITE:
+    #     botright_position = pag.locateOnScreen('Assets\\chess_com\\wr_botrightpiece.png', minSearchTime=0.75)
+    # else:
+    #     botright_position = pag.locateOnScreen('Assets\\chess_com\\br_botrightpiece.png', minSearchTime=0.75)
+    # # print(botright_position)
+    # global piece_box_width
+    # piece_box_width = (pag.center(botright_position)[0] - pag.center(topleft_position)[0])/7
+    # global piece_box_height
+    # piece_box_height = (pag.center(botright_position)[1] - pag.center(topleft_position)[1])/7
     global PrevImg, CurrImg
     PrevImg = pag.screenshot('Assets\\chess_com\\PrevScreen.png')
     CurrImg = pag.screenshot('Assets\\chess_com\\CurrScreen.png')
 
+    f = open("settings.txt", "r")
+    h3square_coord = f.readlines()
+    h3square_coord = [int(i) for i in h3square_coord]
+    print(h3square_coord)
+    f.close()   
+
+    global topleft_position, botright_position
+    topleft_position = (h3square_coord[0] - h3square_coord[2] * 7, h3square_coord[1] - h3square_coord[3] * 5, h3square_coord[2], h3square_coord[3])
+    botright_position = (h3square_coord[0], h3square_coord[1] + h3square_coord[3] * 2, h3square_coord[2], h3square_coord[3])
+
+    global piece_box_width
+    piece_box_width = (pag.center(botright_position)[0] - pag.center(topleft_position)[0])/7
+    global piece_box_height
+    piece_box_height = (pag.center(botright_position)[1] - pag.center(topleft_position)[1])/7
+
     sf.Init(skill_level)
     setCurrChessboard()
+
+def is_clicked(x, y, button, pressed):
+    global h3pos
+    if pressed:
+        print(x, ' ', y, ' Clicked ! ') #in your case, you can move it to some other pos
+        h3pos = (x, y)
+        return False # to stop the thread after click
+
+def check_click():
+    with Listener(on_click=is_clicked) as listener:
+        listener.join()
+
+def calibrate():
+    global white_square_pixel, black_square_pixel
+    #nguoi dung se click vao o h3(mau trang)
+    check_click()
+    CalibrateImg = pag.screenshot('Assets\\chess_com\\CalibrateScreen.png')
+    h3pixel = CalibrateImg.getpixel(h3pos)
+    #find leftmost h3
+    h3pos_tmp = h3pos
+    k = 0
+    while(CalibrateImg.getpixel((h3pos_tmp[0] - k, h3pos_tmp[1])) == h3pixel):
+        k += 1
+    h3left = h3pos_tmp[0] - k + 1
+    #find rightmost h3
+    k = 0
+    while(CalibrateImg.getpixel((h3pos_tmp[0] + k, h3pos_tmp[1])) == h3pixel):
+        k += 1
+    h3right = h3pos_tmp[0] + k - 1
+    #find topmost h3
+    k = 0
+    while(CalibrateImg.getpixel((h3pos_tmp[0], h3pos_tmp[1] - k)) == h3pixel):
+        k += 1
+    h3top = h3pos_tmp[1] - k + 1
+    #find botmost h3
+    k = 0
+    while(CalibrateImg.getpixel((h3pos_tmp[0], h3pos_tmp[1] + k)) == h3pixel):
+        k += 1
+    h3bot = h3pos_tmp[1] + k - 1
+    h3square_coord = (h3left, h3top, h3right - h3left, h3bot - h3top)
+    white_square_pixel = h3pixel
+    black_square_pixel = CalibrateImg.getpixel((h3left - 1, h3top))
+    f = open("settings.txt", "w")
+    for i in range(4):
+        f.write(str(h3square_coord[i]) + '\n')
+    f.close()
 
 def setCurrChessboard():
     global currChessboard
