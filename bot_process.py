@@ -37,7 +37,7 @@ moves = ''
 isEnd = False
 delay_mode = True
 #stockfish stats
-skill_level = 4
+skill_level = 5
 movetime = 0.25
 
 def setup():
@@ -63,8 +63,10 @@ def setup():
     CurrImg = pag.screenshot('Assets\\chess_com\\CurrScreen.png')
 
     f = open("settings.txt", "r")
-    h3square_coord = f.readlines()
-    h3square_coord = [int(i) for i in h3square_coord]
+    tmp = f.readlines()
+    tmp = [int(i) for i in tmp]
+    h3square_coord = (tmp[0], tmp[1], tmp[2], tmp[3])
+    white_pawn_pixel = (tmp[4], tmp[5], tmp[6])
     # print(h3square_coord)
     f.close()   
 
@@ -136,6 +138,8 @@ def calibrate():
     f = open("settings.txt", "w")
     for i in range(4):
         f.write(str(h3square_coord[i]) + '\n')
+    for i in range(3):
+        f.write(str(white_pawn_pixel[i]) + '\n')
     f.close()
 
 def setCurrChessboard():
@@ -190,16 +194,16 @@ def SquareNameToCoordinate(x=""):
 
 def make_delay():
     tmp = random.randint(0, 100)
-    if tmp < 8 == 0:
+    if tmp < 5 == 0:
         time.sleep(random.randint(10, 20)) #chinh delay giua moi lan minh di mot nuoc
-    elif tmp < 50:
+    elif tmp <= 45:
         time.sleep(random.randint(4, 7)) #chinh delay giua moi lan minh di mot nuoc
     else:
         time.sleep(random.randint(0, 3)) #chinh delay giua moi lan minh di mot nuoc
 
 def move_piece(x="", y="", z=None): #di chuyen quan co tu o x den o y, neu z != None thi nuoc di do la phong quan, va quan duoc phong la z
     global moves, delay_mode
-    delay_time_btw_2click = 0.1
+    delay_time_btw_2click = 0.05
     if delay_mode == True:
         make_delay()
     if z == None:
@@ -236,9 +240,10 @@ def move_piece(x="", y="", z=None): #di chuyen quan co tu o x den o y, neu z != 
             click_piece(y)
         else:
             print('WTF the la no phong quan gi?????')
-        
+
         sf.Move(x + tmpy + z)
         moves += x + tmpy + z + ' '
+        time.sleep(0.1)
     setCurrChessboard()
 
 def EnemyMovePiece(x="", y=""): #di tu x den y
