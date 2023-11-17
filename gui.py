@@ -3,10 +3,12 @@ from tkinter import ttk
 import os
 
 import bot_process
+import calibrate
 
 isStart = False
 isCalibrate = False
-state_text = 'running..'
+state_text = 'waiting..'
+isEnd = False
 
 def fun():
     if isStart:
@@ -19,21 +21,24 @@ def start():
 def stop():
     pass
 
-def calibrate():
-    global state_text, isCalibrate, state_label
-    isCalibrate = not isCalibrate
+def update_state_text():
     if isCalibrate:
         state_text = 'calibrating..'
     else:
-        state_text = 'running..'
+        state_text = 'waiting..'    
     state_label.config(text=state_text)
-    bot_process.calibrate()
+
+def calibrate():
+    global state_text, isCalibrate, state_label
+    isCalibrate = not isCalibrate
+    update_state_text()
     
 
 def quit():
-    global root
+    global root, isEnd
     root.destroy()
     bot_process.isEnd = True
+    isEnd = True
 
 def main():
     global isStart, root, state_text, state_label
