@@ -1,6 +1,5 @@
 import pyautogui as pag
 from PIL import Image
-from pynput.mouse import Listener
 import time
 
 import stockfish as sf
@@ -34,6 +33,9 @@ white_pawn_pixel = (0, 0, 0)
 moveCount = 0
 moves = ''
 
+CHESS_COM = 1
+LICHESS_ORG = 0
+mode = CHESS_COM
 isEnd = False
 delay_mode = True
 #stockfish stats
@@ -41,7 +43,7 @@ skill_level = 5
 movetime = 0.25
 
 def setup():
-    global side
+    global side, white_square_pixel, black_square_pixel, black_yellow_square_pixel, white_yellow_square_pixel
     # global topleft_position
     # topleft_position = pag.locateOnScreen('Assets\\chess_com\\br_topleftpiece.png', minSearchTime=0.75)
     # if topleft_position == None:
@@ -67,9 +69,10 @@ def setup():
     tmp = [int(i) for i in tmp]
     h3square_coord = (tmp[0], tmp[1], tmp[2], tmp[3])
     white_pawn_pixel = (tmp[4], tmp[5], tmp[6])
+    white_square_pixel = (tmp[7], tmp[8], tmp[9])
+    black_square_pixel = (tmp[10], tmp[11], tmp[12])
     # print(h3square_coord)
     f.close()   
-
 
 
     global topleft_position, botright_position
@@ -87,60 +90,14 @@ def setup():
     else: 
         side = BLACK
     
-    print(side)
+    if mode == LICHESS_ORG:
+        black_yellow_square_pixel = (170, 162, 58)
+        white_yellow_square_pixel = (205, 210, 106)
+
+    # print(side)
 
     sf.Init(skill_level)
     setCurrChessboard()
-
-def is_clicked(x, y, button, pressed):
-    global h3pos
-    if pressed:
-        print(x, ' ', y, ' Clicked ! ') #in your case, you can move it to some other pos
-        h3pos = (x, y)
-        return False # to stop the thread after click
-
-def check_click():
-    with Listener(on_click=is_clicked) as listener:
-        listener.join()
-
-def calibrate():
-    global white_square_pixel, black_square_pixel, white_pawn_pixel
-    #nguoi dung se click vao o h3(mau trang)
-    check_click()
-    CalibrateImg = pag.screenshot('Assets\\chess_com\\CalibrateScreen.png')
-    h3pixel = CalibrateImg.getpixel(h3pos)
-    #find leftmost h3
-    h3pos_tmp = h3pos
-    k = 0
-    while(CalibrateImg.getpixel((h3pos_tmp[0] - k, h3pos_tmp[1])) == h3pixel):
-        k += 1
-    h3left = h3pos_tmp[0] - k + 1
-    #find rightmost h3
-    k = 0
-    while(CalibrateImg.getpixel((h3pos_tmp[0] + k, h3pos_tmp[1])) == h3pixel):
-        k += 1
-    h3right = h3pos_tmp[0] + k - 1
-    #find topmost h3
-    k = 0
-    while(CalibrateImg.getpixel((h3pos_tmp[0], h3pos_tmp[1] - k)) == h3pixel):
-        k += 1
-    h3top = h3pos_tmp[1] - k + 1
-    #find botmost h3
-    k = 0
-    while(CalibrateImg.getpixel((h3pos_tmp[0], h3pos_tmp[1] + k)) == h3pixel):
-        k += 1
-    h3bot = h3pos_tmp[1] + k - 1
-    h3square_coord = (h3left, h3top, h3right - h3left, h3bot - h3top)
-    white_square_pixel = h3pixel
-    black_square_pixel = CalibrateImg.getpixel((h3left - 1, h3top))
-    h3squarecenter = pag.center(h3square_coord)
-    white_pawn_pixel = CalibrateImg.getpixel((h3squarecenter[0], h3squarecenter[1] + h3square_coord[3]))
-    f = open("settings.txt", "w")
-    for i in range(4):
-        f.write(str(h3square_coord[i]) + '\n')
-    for i in range(3):
-        f.write(str(white_pawn_pixel[i]) + '\n')
-    f.close()
 
 def setCurrChessboard():
     global currChessboard
@@ -193,6 +150,9 @@ def SquareNameToCoordinate(x=""):
     return (col, row)
 
 def make_delay():
+    if side == WHITE and moveCount == 0:
+        time.sleep(1)
+        return
     tmp = random.randint(0, 100)
     if tmp < 5 == 0:
         time.sleep(random.randint(10, 20)) #chinh delay giua moi lan minh di mot nuoc
@@ -273,7 +233,11 @@ def FindSquare(x):
 def GetCenterPixel(x, y):
     global PrevImg, CurrImg, topleft_position, piece_box_width, piece_box_height
     # pag.moveTo(pag.center(topleft_position)[0] + piece_box_width * x, pag.center(topleft_position)[1] + piece_box_height * y)
-    return CurrImg.getpixel((pag.center(topleft_position)[0] + piece_box_width * x, pag.center(topleft_position)[1] + piece_box_height * y))
+    if mode == CHESS_COM:
+        offset = (0, 0)
+    else:
+        offset = (3, -2)
+    return CurrImg.getpixel((pag.center(topleft_position)[0] + piece_box_width * x + offset[0], pag.center(topleft_position)[1] + piece_box_height * y + offset[1]))
 
 def getChessboardState():
     global CurrImg
@@ -301,6 +265,7 @@ def Process():
     takeChessboardStateAgain = False
 
     # print(currChessboard)
+    print(white_square_pixel, '\n', black_square_pixel)
 
     if side == BLACK: #neu minh choi quan den
         isEnemyMove = False
@@ -328,12 +293,14 @@ def Process():
         EnemyMovePiece(move1, move2)
         moveCount += 1
 
+    prevChessboardPixel = getChessboardState()
+    # for i in range(0, 64):
+    #     if i % 8 == 0:
+    #         print()
+    #     print(prevChessboardPixel[i], end=' ')
 
-    while sf.isGameOver() == False:
+    while sf.isGameOver() == False and isEnd == False:
         global myMove1, myMove2
-        if isEnd == True:
-            sf.QuitEngine()
-            exit()
         if moveCount % 2 == 1 - side: #den luot minh di chuyen
             move = sf.GetNextMove(movetime)
             if len(move) == 4:
@@ -355,7 +322,7 @@ def Process():
             prevChessboardPixel = getChessboardState()
         else:
             isMove = False
-            time.sleep(1.5)
+            time.sleep(1)
             enemyMoves = list()
             currChessboardPixel = getChessboardState()
             for i in range(0, 64):
@@ -370,6 +337,8 @@ def Process():
                         # print(squarename)
                         enemyMoves.append(squarename)
                         isMove = True
+            # if len(enemyMoves) != 0:
+            #     print(enemyMoves)
             if len(enemyMoves) == 1:
                 (x1, y1) = SquareNameToCoordinate(myMove1)
                 (x2, y2) = SquareNameToCoordinate(myMove2)
@@ -418,6 +387,7 @@ def Process():
                         print('What tf is going on????')
                         print(enemyMoves)
                         print(currChessboard)
+            # print(currChessboardPixel)
 
 def main():
     global piece_box_width, piece_box_height, chessboard_surface

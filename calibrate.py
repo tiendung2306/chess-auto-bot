@@ -48,6 +48,10 @@ def calibrate():
         f.write(str(h3square_coord[i]) + '\n')
     for i in range(3):
         f.write(str(white_pawn_pixel[i]) + '\n')
+    for i in range(3):
+        f.write(str(white_square_pixel[i]) + '\n')
+    for i in range(3):
+        f.write(str(black_square_pixel[i]) + '\n')
     f.close()
 
 def main():
