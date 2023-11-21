@@ -38,30 +38,18 @@ LICHESS_ORG = 0
 mode = CHESS_COM
 isEnd = False
 delay_mode = True
+isStart = False
+isRestart = False
 #stockfish stats
-skill_level = 5
+skill_level = 4
 movetime = 0.25
 
 def setup():
-    global side, white_square_pixel, black_square_pixel, black_yellow_square_pixel, white_yellow_square_pixel
-    # global topleft_position
-    # topleft_position = pag.locateOnScreen('Assets\\chess_com\\br_topleftpiece.png', minSearchTime=0.75)
-    # if topleft_position == None:
-    #     side = BLACK
-    #     topleft_position = pag.locateOnScreen('Assets\\chess_com\\wr_topleftpiece.png', minSearchTime=0.75)
-    # # print(topleft_position)
-    # global botright_position
-    # if side == WHITE:
-    #     botright_position = pag.locateOnScreen('Assets\\chess_com\\wr_botrightpiece.png', minSearchTime=0.75)
-    # else:
-    #     botright_position = pag.locateOnScreen('Assets\\chess_com\\br_botrightpiece.png', minSearchTime=0.75)
-    # # print(botright_position)
-    # global piece_box_width
-    # piece_box_width = (pag.center(botright_position)[0] - pag.center(topleft_position)[0])/7
-    # global piece_box_height
-    # piece_box_height = (pag.center(botright_position)[1] - pag.center(topleft_position)[1])/7
-    global PrevImg, CurrImg
-    PrevImg = pag.screenshot('Assets\\chess_com\\PrevScreen.png')
+    global side, white_square_pixel, black_square_pixel, black_yellow_square_pixel, white_yellow_square_pixel, moves, moveCount
+    moveCount = 0
+    moves = ''
+
+    global CurrImg
     CurrImg = pag.screenshot('Assets\\chess_com\\CurrScreen.png')
 
     f = open("settings.txt", "r")
@@ -73,7 +61,6 @@ def setup():
     black_square_pixel = (tmp[10], tmp[11], tmp[12])
     # print(h3square_coord)
     f.close()   
-
 
     global topleft_position, botright_position
     topleft_position = (h3square_coord[0] - h3square_coord[2] * 7, h3square_coord[1] - h3square_coord[3] * 5, h3square_coord[2], h3square_coord[3])
@@ -154,9 +141,9 @@ def make_delay():
         time.sleep(1)
         return
     tmp = random.randint(0, 100)
-    if tmp < 5 == 0:
+    if tmp < 8 == 0:
         time.sleep(random.randint(10, 20)) #chinh delay giua moi lan minh di mot nuoc
-    elif tmp <= 45:
+    elif tmp <= 50:
         time.sleep(random.randint(4, 7)) #chinh delay giua moi lan minh di mot nuoc
     else:
         time.sleep(random.randint(0, 3)) #chinh delay giua moi lan minh di mot nuoc
@@ -166,6 +153,8 @@ def move_piece(x="", y="", z=None): #di chuyen quan co tu o x den o y, neu z != 
     delay_time_btw_2click = 0.05
     if delay_mode == True:
         make_delay()
+    if isEnd or isRestart:
+        return
     if z == None:
         x1 = click_piece(x)
         time.sleep(delay_time_btw_2click)
@@ -231,7 +220,7 @@ def FindSquare(x):
     return CoordinateToSquareName(posX, posY)
 
 def GetCenterPixel(x, y):
-    global PrevImg, CurrImg, topleft_position, piece_box_width, piece_box_height
+    global CurrImg, topleft_position, piece_box_width, piece_box_height
     # pag.moveTo(pag.center(topleft_position)[0] + piece_box_width * x, pag.center(topleft_position)[1] + piece_box_height * y)
     if mode == CHESS_COM:
         offset = (0, 0)
@@ -299,7 +288,7 @@ def Process():
     #         print()
     #     print(prevChessboardPixel[i], end=' ')
 
-    while sf.isGameOver() == False and isEnd == False:
+    while sf.isGameOver() == False and isEnd == False and isRestart == False:
         global myMove1, myMove2
         if moveCount % 2 == 1 - side: #den luot minh di chuyen
             move = sf.GetNextMove(movetime)
@@ -318,11 +307,13 @@ def Process():
             # for x in currChessboard:
             #     print(x, end='\n')
             # print()
-            time.sleep(0.025)
+            # time.sleep(0.025)
             prevChessboardPixel = getChessboardState()
         else:
             isMove = False
-            time.sleep(1)
+            time.sleep(0.25)
+            if isEnd or isRestart:
+                break
             enemyMoves = list()
             currChessboardPixel = getChessboardState()
             for i in range(0, 64):
@@ -390,7 +381,8 @@ def Process():
             # print(currChessboardPixel)
 
 def main():
-    global piece_box_width, piece_box_height, chessboard_surface
+    print('start')
+    global piece_box_width, piece_box_height, chessboard_surface, isEnd
     setup()
     # move_piece('d7', 'd5')
     chessboard_surface = (topleft_position[0], topleft_position[1], int(piece_box_width * 8), int(piece_box_height * 8))
@@ -398,6 +390,13 @@ def main():
     Process()
     sf.QuitEngine()
 
+def start():
+    global isStart
+    while isEnd == False:
+        if isStart:
+            isStart = False
+            sf.Init(skill_level)
+            main()
 
 if __name__ == "__main__":
     main()
