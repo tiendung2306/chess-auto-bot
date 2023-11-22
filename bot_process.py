@@ -225,7 +225,8 @@ def GetCenterPixel(x, y):
     if mode == CHESS_COM:
         offset = (0, 0)
     else:
-        offset = (int(piece_box_width // 34), -int(piece_box_height // 50))
+        offset = (int(piece_box_height / 31), int(piece_box_height / 7.75))
+    # pag.moveTo((pag.center(topleft_position)[0] + piece_box_width * 4 + offset[0], pag.center(topleft_position)[1] + piece_box_height * 7 + offset[1]))
     return CurrImg.getpixel((pag.center(topleft_position)[0] + piece_box_width * x + offset[0], pag.center(topleft_position)[1] + piece_box_height * y + offset[1]))
 
 def getChessboardState():
