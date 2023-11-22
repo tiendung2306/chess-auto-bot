@@ -22,7 +22,7 @@ You must setting like this to make the bot able to play: <br>
 `python main.py`
 4. A topmost app will be opened, and the interface looks like this: <br>
    ![image](https://github.com/tiendung2306/chess-auto-bot/assets/109841830/d42eb84d-d563-484b-9699-d5b371672f6a)
-5. Open chess.com or lichess.org, which you want to play. Move the 'Chess auto bot' app out of the chess's table. If this's the first time you play on this site or the last time you played on another site, you need to calibrate the bot. <br>
+5. Open chess.com or lichess.org, which you want to play. **Move the 'Chess auto bot' app out of the chess's table (like the image below)**. If this's the first time you play on this site or the last time you played on another site, you need to calibrate the bot. <br>
 
 - Play a new match versus computer, play as WHITE side 
 - Click Calibrate button, you will see the text display "calibrating.."
@@ -37,8 +37,8 @@ You must setting like this to make the bot able to play: <br>
 8. If you want to play a new game, click to "New game" button and wait text change to "waiting..". Click Start button again to start bot again
 
 ## Warnings
-**DO NOT move the mouse while bot's running** <br>
-**Make sure the chess board visible all time while bot's running** <br>
+**DO NOT move the mouse while the bot's running** <br>
+**Make sure the chess board is visible all time while the bot's running** <br>
 If bot can't play, try to calibrate and start again
 
 ## Thanks
