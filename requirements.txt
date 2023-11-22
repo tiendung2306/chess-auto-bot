@@ -1,0 +1,5 @@
+pyautogui
+opencv-python
+pywin32
+chess
+tk
