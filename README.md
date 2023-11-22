@@ -3,8 +3,9 @@
  
 ## How to install
 1. Clone the repository or just download the repository as a .zip and extract file
-2. Use pip install -r requirements.txt to install all dependencies
-
+2. Make sure you have the newest version pip. If not, run `python -m pip install --upgrade pip`
+3. Use pip install -r requirements.txt to install all dependencies <br>
+*If you have some errors in installing Pillow, see [this](https://stackoverflow.com/questions/76997550/error-could-not-build-wheels-for-pillow-which-is-required-to-install-pyproject) and do step 3 again* 
 ## Settings before use(important)
 - Chess.com: <br>
 You must setting like this to make the bot able to play: <br>
