@@ -144,9 +144,9 @@ def make_delay():
     if tmp < 8 == 0:
         time.sleep(random.randint(10, 20)) #chinh delay giua moi lan minh di mot nuoc
     elif tmp <= 50:
-        time.sleep(random.randint(4, 7)) #chinh delay giua moi lan minh di mot nuoc
+        time.sleep(random.randint(4, 10)) #chinh delay giua moi lan minh di mot nuoc
     else:
-        time.sleep(random.randint(0, 3)) #chinh delay giua moi lan minh di mot nuoc
+        time.sleep(random.randint(0, 5)) #chinh delay giua moi lan minh di mot nuoc
 
 def move_piece(x="", y="", z=None): #di chuyen quan co tu o x den o y, neu z != None thi nuoc di do la phong quan, va quan duoc phong la z
     global moves, delay_mode
@@ -225,7 +225,7 @@ def GetCenterPixel(x, y):
     if mode == CHESS_COM:
         offset = (0, 0)
     else:
-        offset = (3, -2)
+        offset = (int(piece_box_width // 34), -int(piece_box_height // 50))
     return CurrImg.getpixel((pag.center(topleft_position)[0] + piece_box_width * x + offset[0], pag.center(topleft_position)[1] + piece_box_height * y + offset[1]))
 
 def getChessboardState():
