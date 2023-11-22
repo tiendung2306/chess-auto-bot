@@ -83,7 +83,7 @@ def main():
     state_label = Label(root, text=state_text, font=('Arial', 24))
     state_label.grid(row=1, column=0)
     Button(root, text='Start', font=('Arial', 18), command=start).grid(row=2, column=0)
-    Button(root, text='Restart', font=('Arial', 18), command=restart).grid(row=2, column=1)
+    Button(root, text='New game', font=('Arial', 18), command=restart).grid(row=2, column=1)
     delaymode_btn = Button(root, text='DelayMode: On', font=('Arial', 18), command=change_delaymode)
     delaymode_btn.grid(row=3, column=0)
     Button(root, text='Quit', font=('Arial', 18), command=quit).grid(row=3, column=1)
