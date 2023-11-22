@@ -50,7 +50,7 @@ def setup():
     moves = ''
 
     global CurrImg
-    CurrImg = pag.screenshot('Assets\\chess_com\\CurrScreen.png')
+    CurrImg = pag.screenshot('Assets\\CurrScreen.png')
 
     f = open("settings.txt", "r")
     tmp = f.readlines()
@@ -231,7 +231,7 @@ def GetCenterPixel(x, y):
 
 def getChessboardState():
     global CurrImg
-    CurrImg = pag.screenshot('Assets\\chess_com\\CurrScreen.png')
+    CurrImg = pag.screenshot('Assets\\CurrScreen.png')
     arr = [(0, 0, 0)] * 64
     for i in range(0, 64):
         x = i % 8

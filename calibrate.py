@@ -15,7 +15,7 @@ def calibrate():
     global white_square_pixel, black_square_pixel, white_pawn_pixel
     #nguoi dung se click vao o h3(mau trang)
     check_click()
-    CalibrateImg = pag.screenshot('Assets\\chess_com\\CalibrateScreen.png')
+    CalibrateImg = pag.screenshot('Assets\\CalibrateScreen.png')
     h3pixel = CalibrateImg.getpixel(h3pos)
     #find leftmost h3
     h3pos_tmp = h3pos
