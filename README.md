@@ -18,12 +18,12 @@ You must setting like this to make the bot able to play: <br>
 
 ## How to use 
 1. Open a Terminal
-2. Change dir to the installation's folder
+2. Change dir to the installation's install locaition
 3. Run the command:
 `python main.py`
 4. A topmost app will be opened, and the interface looks like this: <br>
    ![image](https://github.com/tiendung2306/chess-auto-bot/assets/109841830/d42eb84d-d563-484b-9699-d5b371672f6a)
-5. Open chess.com or lichess.org, which you want to play. **Move the 'Chess auto bot' app out of the chess's table (like the image below)**. If this's the first time you play on this site or the last time you played on another site, you need to calibrate the bot. <br>
+5. Open chess.com or lichess.org, which you want to play. **Move the 'Chess auto bot' app out of the chess's table (like the image below)**. If this's the first time you play on this site or the last time you played on another site, you need to **calibrate** the bot. <br>
 
 - Play a new match versus computer, play as WHITE side 
 - Click Calibrate button, you will see the text display "calibrating.."
