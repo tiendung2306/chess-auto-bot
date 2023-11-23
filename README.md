@@ -18,7 +18,7 @@ You must setting like this to make the bot able to play: <br>
 
 ## How to use 
 1. Open a Terminal
-2. Change dir to the installation's install locaition
+2. Change dir to the script's install location
 3. Run the command:
 `python main.py`
 4. A topmost app will be opened, and the interface looks like this: <br>
